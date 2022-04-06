@@ -1,5 +1,5 @@
 import enum
 
 class InjuryType(enum.Enum):
-   Killed = 'KILLED'
-   Injured = 'INJURED'
+   Killed = 0
+   Injured = 1
