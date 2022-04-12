@@ -49,12 +49,12 @@ def prepare_by_time_of_day():
 if __name__ == "__main__":    
     
     #read input file
-    # reader = NypdReader()
-    # nypd_data = reader.read_nypd_file_to_data_frame('D:\\Development\\Pandas\\nypd-motor-vehicle-collisions.csv')
-    # split_data_by_borough(nypd_data)
-    # prepare_weekly_analysis_files()
-    # prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
-    # prepare_most_killing_car_types('most_injutring_vehice_type_', InjuryType.Injured)
+    reader = NypdReader()
+    nypd_data = reader.read_nypd_file_to_data_frame('D:\\Development\\Pandas\\nypd-motor-vehicle-collisions.csv')
+    split_data_by_borough(nypd_data)
+    prepare_weekly_analysis_files()
+    prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
+    prepare_most_killing_car_types('most_injutring_vehice_type_', InjuryType.Injured)
     prepare_by_time_of_day()      
 
 
