@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from analysers.time_of_day_analyser.time_of_day_analyser import TimeOfDayAnalyser
 from analysers.weekday_analyser.weekday_analyser import WeekDayAnalyser
 from data_readers.nypd_reader import NypdReader
 from data_writers.borough_splitter import BoroughSplitter
@@ -34,17 +35,28 @@ def prepare_most_killing_car_types(outputFilePrefix:str, injury :InjuryType ):
         file_path = os.path.join(folders.by_borough, file_name)
         kill_analyser.store_casuality_info_by_vehicle_type(file_path, output_file_name,injury)
 
+def prepare_by_time_of_day():
+    time_of_day_analyser = TimeOfDayAnalyser()
+    folders = FoldersLookup()
+    for file_name in os.listdir(folders.by_borough):
+        output_file_name = f'{file_name}'
+        file_path = os.path.join(folders.by_borough, file_name)
+        time_of_day_analyser.store_per_time_of_day_count(file_path, output_file_name)
+
+
+
 
 if __name__ == "__main__":    
     
-    
     #read input file
     # reader = NypdReader()
-    # nypd_data = reader.read_nypd_file_to_data_frame('C:\\Development\\PandasZaliczenie\\nypd-motor-vehicle-collisions.csv')
+    # nypd_data = reader.read_nypd_file_to_data_frame('D:\\Development\\Pandas\\nypd-motor-vehicle-collisions.csv')
     # split_data_by_borough(nypd_data)
     # prepare_weekly_analysis_files()
-    prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
-    prepare_most_killing_car_types('most_injutring_vehice_type_', InjuryType.Injured)
+    # prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
+    # prepare_most_killing_car_types('most_injutring_vehice_type_', InjuryType.Injured)
+    prepare_by_time_of_day()      
+
 
     # print(by_borough.head(20))
 
