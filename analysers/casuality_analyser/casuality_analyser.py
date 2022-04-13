@@ -13,8 +13,10 @@ class CasualityAnalyser():
         raw_data = pd.read_csv(filePath)
         
         field_substring = 'KILLED'
+        file_name = self.__folders__.findings_by_vehicle_type_kill
         if injury == InjuryType.Injured:
             field_substring = 'INJURED'
+            file_name = self.__folders__.findings_by_vehicle_type_injured
         
         raw_data[f'{field_substring} PEOPLE'] = raw_data[f'NUMBER OF PERSONS {field_substring}'] + raw_data[f'NUMBER OF PEDESTRIANS {field_substring}'] + raw_data[f'NUMBER OF CYCLIST {field_substring}'] + raw_data[f'NUMBER OF MOTORIST {field_substring}']
         
@@ -25,7 +27,7 @@ class CasualityAnalyser():
         mean_and_above_by_type = mean_and_above_by_type.to_frame()
         mean_and_above_by_type=mean_and_above_by_type.sort_values([f'{field_substring} PEOPLE'], ascending=False)
         mean_and_above_by_type['borough'] = filePath.split('\\')[-1].replace('.csv','')
-        storage_path = os.path.join(self.__folders__.findings_folder, self.__folders__.findings_by_vehicle_type)
+        storage_path = os.path.join(self.__folders__.findings_folder, file_name)
         output_file_path = os.path.join(storage_path, outputFileName)
         os.makedirs(storage_path, exist_ok=True)
         mean_and_above_by_type.to_csv(output_file_path)

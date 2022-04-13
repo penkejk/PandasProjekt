@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from analysers.findings_combiner import FindingsCombiner
 from analysers.time_of_day_analyser.time_of_day_analyser import TimeOfDayAnalyser
 from analysers.weekday_analyser.weekday_analyser import WeekDayAnalyser
 from data_readers.nypd_reader import NypdReader
@@ -14,6 +15,7 @@ from analysers.casuality_analyser.injury_type import InjuryType
 # pd.set_option('display.width',1000)
 # pd.set_option('display.max_colwidth', 100)
 
+combiner = FindingsCombiner()
 
 def prepare_weekly_analysis_files():
     weekAnalyser = WeekDayAnalyser()
@@ -22,6 +24,8 @@ def prepare_weekly_analysis_files():
         output_file_name = f'weekly_{file_name}'
         file_path = os.path.join(folders.by_borough, file_name)
         weekAnalyser.store_per_weekday_accident_count(file_path, output_file_name)
+    combiner.combine_findings(f'{folders.findings_folder}\\{folders.findings_by_weekday}','COLLISION_ID')
+
 
 def split_data_by_borough(inputData :pd.DataFrame):
     boroughSplitter = BoroughSplitter()
@@ -34,6 +38,13 @@ def prepare_most_killing_car_types(outputFilePrefix:str, injury :InjuryType ):
         output_file_name = f'{outputFilePrefix}{file_name}'
         file_path = os.path.join(folders.by_borough, file_name)
         kill_analyser.store_casuality_info_by_vehicle_type(file_path, output_file_name,injury)
+    
+    output_file_name = folders.findings_by_vehicle_type_kill
+    sort_field_substring = 'KILLED'
+    if injury == InjuryType.Injured:
+        output_file_name = folders.findings_by_vehicle_type_injured
+        sort_field_substring = 'INJURED'
+    combiner.combine_findings(f'{folders.findings_folder}\\{output_file_name}',f'{sort_field_substring} PEOPLE')
 
 def prepare_by_time_of_day():
     time_of_day_analyser = TimeOfDayAnalyser()
@@ -42,7 +53,8 @@ def prepare_by_time_of_day():
         output_file_name = f'{file_name}'
         file_path = os.path.join(folders.by_borough, file_name)
         time_of_day_analyser.store_per_time_of_day_count(file_path, output_file_name)
-
+    combiner.combine_findings(f'{folders.findings_folder}\\{folders.findings_by_time_of_day}','COLLISION_ID')
+    
 
 
 
@@ -54,7 +66,7 @@ if __name__ == "__main__":
     split_data_by_borough(nypd_data)
     prepare_weekly_analysis_files()
     prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
-    prepare_most_killing_car_types('most_injutring_vehice_type_', InjuryType.Injured)
+    prepare_most_killing_car_types('most_injuring_vehice_type_', InjuryType.Injured)
     prepare_by_time_of_day()      
 
 
