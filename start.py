@@ -1,3 +1,4 @@
+import sys
 import os
 import pandas as pd
 from analysers.findings_combiner import FindingsCombiner
@@ -56,20 +57,69 @@ def prepare_by_time_of_day():
     combiner.combine_findings(f'{folders.findings_folder}\\{folders.findings_by_time_of_day}','COLLISION_ID')
     
 
+def create_final_report():
+    folders = FoldersLookup()
+    merged_file_name = 'merged_results.csv'
+
+    weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thrusday','Friday','Saturday','Sunday']
+
+    for file_name in os.listdir(folders.by_borough):
+        borough_name = f'{file_name}'.replace('.csv','')
+        weekday_storage_path = os.path.join(folders.findings_folder, folders.findings_by_weekday,merged_file_name)
+        by_vehicle_type_kill = os.path.join(folders.findings_folder, folders.findings_by_vehicle_type_kill,merged_file_name)
+        by_vehicle_type_injured = os.path.join(folders.findings_folder, folders.findings_by_vehicle_type_injured,merged_file_name)
+        by_time_of_day = os.path.join(folders.findings_folder, folders.findings_by_time_of_day,merged_file_name)  
+        print(f'Report for {borough_name}')
+        weekday_df = pd.read_csv(weekday_storage_path)
+        weekday_df= weekday_df[weekday_df['borough']==borough_name]
+        weekday_df = weekday_df[weekday_df['index'] == 0]
+        weekday_df.reset_index(drop=True, inplace=True)      
+        most_weekday = weekday_df.at[0, 'weekday']
+        collisions_wd = weekday_df.at[0, 'COLLISION_ID']
+        print(f'The most accidents happened on day {weekdays[most_weekday]} with {collisions_wd} collisions')
+
+        time_of_day_df = pd.read_csv(by_time_of_day)
+        time_of_day_df = time_of_day_df[time_of_day_df['index'] == 0]
+        time_of_day_df = time_of_day_df[time_of_day_df['borough']==borough_name]
+        time_of_day_df.reset_index(drop=True, inplace=True)  
+        most_time_day = time_of_day_df.at[0, 'DAY TIME']
+        collisions_td = time_of_day_df.at[0, 'COLLISION_ID']
+        print(f'The most accidents happened during {most_time_day} with {collisions_td} collisions')
+
+        killing_vehicle_df = pd.read_csv(by_vehicle_type_kill)
+        killing_vehicle_df = killing_vehicle_df[killing_vehicle_df['index'] == 0]
+        killing_vehicle_df = killing_vehicle_df[killing_vehicle_df['borough']==borough_name]
+        killing_vehicle_df.reset_index(drop=True, inplace=True)  
+        killing_type = killing_vehicle_df.at[0, 'VEHICLE TYPE CODE 1']
+        collisions_kill = killing_vehicle_df.at[0, 'KILLED PEOPLE']
+        print(f'The most accidents resulting in kills were caused by {killing_type} with {collisions_kill} kills')
+
+        injuring_vehicle_df = pd.read_csv(by_vehicle_type_injured)
+        injuring_vehicle_df = injuring_vehicle_df[injuring_vehicle_df['index'] == 0]
+        injuring_vehicle_df = injuring_vehicle_df[injuring_vehicle_df['borough']==borough_name]
+        injuring_vehicle_df.reset_index(drop=True, inplace=True)  
+        injuring_type = injuring_vehicle_df.at[0, 'VEHICLE TYPE CODE 1']
+        collisions_injures = injuring_vehicle_df.at[0, 'INJURED PEOPLE']
+        print(f'The most accidents resulting in injuries were caused by {injuring_type} with {collisions_injures} injuries')
+
+        print(f'-------------END OF REPORT FOR {file_name}------------------')
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":     
     
+    file_path = sys.argv[0]
+
     #read input file
     reader = NypdReader()
     nypd_data = reader.read_nypd_file_to_data_frame('D:\\Development\\Pandas\\nypd-motor-vehicle-collisions.csv')
+    ###nypd_data = reader.read_nypd_file_to_data_frame(file_path)
     split_data_by_borough(nypd_data)
     prepare_weekly_analysis_files()
     prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
     prepare_most_killing_car_types('most_injuring_vehice_type_', InjuryType.Injured)
     prepare_by_time_of_day()      
-
-
+    create_final_report()
+    create_final_report()
     # print(by_borough.head(20))
 
 
