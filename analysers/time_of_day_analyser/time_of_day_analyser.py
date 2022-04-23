@@ -20,13 +20,13 @@ class TimeOfDayAnalyser():
         raw_data['DAY TIME'] = 'N/A'
         
 
-        raw_data.loc[raw_data['HOUR'] <= 4,  'DAY TIME'] = 'NIGHT'
-        raw_data.loc[raw_data['HOUR'].between(4,7),  'DAY TIME'] = 'EARLY MORNING'
-        raw_data.loc[raw_data['HOUR'].between(7,10),  'DAY TIME'] = 'MORNING COMMUTE'
-        raw_data.loc[raw_data['HOUR'].between(10,16),  'DAY TIME'] = 'WORK TIME'
-        raw_data.loc[raw_data['HOUR'].between(16,19),  'DAY TIME'] = 'EVENING COMMUTE'
-        raw_data.loc[raw_data['HOUR'].between(19,22),  'DAY TIME'] = 'EVENING'
-        raw_data.loc[raw_data['HOUR'] > 22,  'DAY TIME'] = 'NIGHT'
+        raw_data.loc[raw_data['HOUR'] <= 4,  'DAY TIME'] = 'NIGHT (22-4)'
+        raw_data.loc[raw_data['HOUR'].between(4,7),  'DAY TIME'] = 'EARLY MORNING (4,7)'
+        raw_data.loc[raw_data['HOUR'].between(7,10),  'DAY TIME'] = 'MORNING COMMUTE (7,10)'
+        raw_data.loc[raw_data['HOUR'].between(10,16),  'DAY TIME'] = 'WORK TIME (10,16)'
+        raw_data.loc[raw_data['HOUR'].between(16,19),  'DAY TIME'] = 'EVENING COMMUTE (16,19)'
+        raw_data.loc[raw_data['HOUR'].between(19,22),  'DAY TIME'] = 'EVENING (19,22)'
+        raw_data.loc[raw_data['HOUR'] > 22,  'DAY TIME'] = 'NIGHT (22-4)'
         grouped_by_day_time = raw_data.groupby('DAY TIME')['COLLISION_ID'].count()
         grouped_by_day_time = grouped_by_day_time.to_frame()
         grouped_by_day_time['borough'] = filePath.split('\\')[-1].replace('.csv','')
