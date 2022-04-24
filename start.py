@@ -1,5 +1,3 @@
-from argparse import ArgumentError
-import sys
 import os
 import pandas as pd
 from analysers.findings_combiner import FindingsCombiner
@@ -13,10 +11,6 @@ from analysers.casuality_analyser.casuality_analyser import CasualityAnalyser
 from analysers.casuality_analyser.injury_type import InjuryType
 
 
-# pd.set_option('display.max_columns',50)
-
-# pd.set_option('display.width',1000)
-# pd.set_option('display.max_colwidth', 100)
 _folders = FoldersLookup()
 _combiner = FindingsCombiner()
 _html_writer = HtmlWriter()
