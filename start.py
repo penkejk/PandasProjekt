@@ -99,8 +99,8 @@ def create_final_report()-> pd.DataFrame:
         collisions_injures = injuring_vehicle_df.at[0, 'INJURED PEOPLE']
         print(f'The most accidents resulting in injuries were caused by {injuring_type} with {collisions_injures} injuries')
 
-        file_data_frame_data = [[borough_name, weekdays[most_weekday], collisions_wd, most_time_day, collisions_td, killing_type,collisions_kill,injuring_type,collisions_injures]]
-        columns= ["BOROUGH NAME", "WEEKDAY","NO OF COLLISIONS ON WEEKDAY","TIME OF DAY", "COLLISIONS ON TIME OF DAY", "MOST KILLING VEHICLE", "KILL COUNT", "MOST INJURING VEHICLE", "INJURY COUNT"]
+        file_data_frame_data = [[borough_name, weekdays[most_weekday], collisions_wd, most_time_day, collisions_td, killing_type,collisions_kill,injuring_type,collisions_injures, collisions_kill/collisions_injures,collisions_injures/collisions_wd] ]
+        columns= ["BOROUGH NAME", "WEEKDAY","NO OF COLLISIONS ON WEEKDAY","TIME OF DAY", "COLLISIONS ON TIME OF DAY", "MOST KILLING VEHICLE", "KILL COUNT", "MOST INJURING VEHICLE", "INJURY COUNT", "KILL TO INJURE RATIO", "INJURE TO COLLISIONS RATIO"]
         file_data_frame = pd.DataFrame(data = file_data_frame_data, columns= columns)
 
         per_file_frames.append(file_data_frame)
