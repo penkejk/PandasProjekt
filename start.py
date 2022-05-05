@@ -1,5 +1,3 @@
-from argparse import ArgumentError
-import sys
 import os
 import pandas as pd
 from analysers.findings_combiner import FindingsCombiner
@@ -11,50 +9,16 @@ from data_writers.html_writer import HtmlWriter
 from folders_handling.folders import FoldersLookup
 from analysers.casuality_analyser.casuality_analyser import CasualityAnalyser
 from analysers.casuality_analyser.injury_type import InjuryType
+from workers.casuality_worker import CasualityWorker
+from workers.excel_data_worker import ExcelDataWorker
+from workers.time_of_day_worker import TimeOfDayWorker
+from workers.weekly_data_worker import WeeklyDataWorker
 
 
-# pd.set_option('display.max_columns',50)
-
-# pd.set_option('display.width',1000)
-# pd.set_option('display.max_colwidth', 100)
-_folders = FoldersLookup()
-_combiner = FindingsCombiner()
+folders = FoldersLookup()
 _html_writer = HtmlWriter()
 
-def prepare_weekly_analysis_files():
-    weekAnalyser = WeekDayAnalyser()
-    for file_name in os.listdir(_folders.by_borough):
-        output_file_name = f'weekly_{file_name}'
-        file_path = os.path.join(_folders.by_borough, file_name)
-        weekAnalyser.store_per_weekday_accident_count(file_path, output_file_name)
-    _combiner.combine_findings(f'{_folders.findings_folder}\\{_folders.findings_by_weekday}','COLLISION_ID')
 
-
-def split_data_by_borough(inputData :pd.DataFrame):
-    boroughSplitter = BoroughSplitter()
-    boroughSplitter.split_nypd_by_borough(inputData)
-
-def prepare_most_killing_car_types(outputFilePrefix:str, injury :InjuryType ):
-    kill_analyser = CasualityAnalyser()
-    for file_name in os.listdir(_folders.by_borough):
-        output_file_name = f'{outputFilePrefix}{file_name}'
-        file_path = os.path.join(_folders.by_borough, file_name)
-        kill_analyser.store_casuality_info_by_vehicle_type(file_path, output_file_name,injury)
-    
-    output_file_name = _folders.findings_by_vehicle_type_kill
-    sort_field_substring = 'KILLED'
-    if injury == InjuryType.Injured:
-        output_file_name = _folders.findings_by_vehicle_type_injured
-        sort_field_substring = 'INJURED'
-    _combiner.combine_findings(f'{_folders.findings_folder}\\{output_file_name}',f'{sort_field_substring} PEOPLE')
-
-def prepare_by_time_of_day():
-    time_of_day_analyser = TimeOfDayAnalyser()
-    for file_name in os.listdir(_folders.by_borough):
-        output_file_name = f'{file_name}'
-        file_path = os.path.join(_folders.by_borough, file_name)
-        time_of_day_analyser.store_per_time_of_day_count(file_path, output_file_name)
-    _combiner.combine_findings(f'{_folders.findings_folder}\\{_folders.findings_by_time_of_day}','COLLISION_ID')
     
 
 def create_final_report()-> pd.DataFrame:
@@ -66,12 +30,12 @@ def create_final_report()-> pd.DataFrame:
     
 
 
-    for file_name in os.listdir(_folders.by_borough):
+    for file_name in os.listdir(folders.by_borough):
         borough_name = f'{file_name}'.replace('.csv','')
-        weekday_storage_path = os.path.join(_folders.findings_folder, _folders.findings_by_weekday,merged_file_name)
-        by_vehicle_type_kill = os.path.join(_folders.findings_folder, _folders.findings_by_vehicle_type_kill,merged_file_name)
-        by_vehicle_type_injured = os.path.join(_folders.findings_folder, _folders.findings_by_vehicle_type_injured,merged_file_name)
-        by_time_of_day = os.path.join(_folders.findings_folder, _folders.findings_by_time_of_day,merged_file_name)  
+        weekday_storage_path = os.path.join(folders.findings_folder, folders.findings_by_weekday,merged_file_name)
+        by_vehicle_type_kill = os.path.join(folders.findings_folder, folders.findings_by_vehicle_type_kill,merged_file_name)
+        by_vehicle_type_injured = os.path.join(folders.findings_folder, folders.findings_by_vehicle_type_injured,merged_file_name)
+        by_time_of_day = os.path.join(folders.findings_folder, folders.findings_by_time_of_day,merged_file_name)  
         print(f'Report for {borough_name}')
         weekday_df = pd.read_csv(weekday_storage_path)
         weekday_df= weekday_df[weekday_df['borough']==borough_name]
@@ -119,21 +83,22 @@ def create_final_report()-> pd.DataFrame:
 if __name__ == "__main__":     
     
 
-    input_file_path = f'{_folders.input_data}\\nypd-motor-vehicle-collisions.csv'
-    output_file_path = f'{_folders.output_data}\\analysys_report.html'
+    input_file_path = f'{folders.input_data}\\nypd-motor-vehicle-collisions.csv'
+    output_file_path = f'{folders.output_data}\\analysys_report.html'
     if os.path.exists(input_file_path) == False:
         raise Exception(f'The input file cannot be found under {input_file_path}')
 
     reader = NypdReader()
     nypd_data = reader.read_nypd_file_to_data_frame(input_file_path)
-    split_data_by_borough(nypd_data)
-    prepare_weekly_analysis_files()
-    prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
-    prepare_most_killing_car_types('most_injuring_vehice_type_', InjuryType.Injured)
-    prepare_by_time_of_day()     
+    ExcelDataWorker().split_data_by_borough(nypd_data)
+    WeeklyDataWorker().prepare_weekly_analysis_files()
+    casuality_worker = CasualityWorker()
+    casuality_worker.prepare_most_killing_car_types('most_killing_vehice_type_',InjuryType.Killed)
+    casuality_worker.prepare_most_killing_car_types('most_injuring_vehice_type_', InjuryType.Injured)
+    TimeOfDayWorker().prepare_by_time_of_day_overview()     
 
     report_data_frame = create_final_report()
-    _html_writer.write_data_frame_to_html(report_data_frame, _folders.output_data,output_file_path)
+    _html_writer.write_data_frame_to_html(report_data_frame,output_file_path)
  
 
 
