@@ -9,7 +9,7 @@ class TimeOfDayWorker:
     folders = FoldersLookup()
     combiner = FindingsCombiner()
     
-    def prepare_by_time_of_day(self):
+    def prepare_by_time_of_day_overview(self):
         time_of_day_analyser = TimeOfDayAnalyser()
         for file_name in os.listdir(self.folders.by_borough):
             output_file_name = f'{file_name}'

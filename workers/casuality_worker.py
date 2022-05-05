@@ -1,12 +1,14 @@
 import os
 from analysers.casuality_analyser.casuality_analyser import CasualityAnalyser
 from analysers.casuality_analyser.injury_type import InjuryType
+from analysers.findings_combiner import FindingsCombiner
 from folders_handling.folders import FoldersLookup
 
 
 class CasualityWorker:
     folders = FoldersLookup()
-    
+    combiner = FindingsCombiner()
+
     def prepare_most_killing_car_types(self,outputFilePrefix:str, injury :InjuryType ):
         kill_analyser = CasualityAnalyser()
         for file_name in os.listdir(self.folders.by_borough):
