@@ -14,8 +14,8 @@ class TimeOfDayAnalyser():
     def __extract_hour__(self,input:str) -> str:
         return input.split(':')[0]
 
-    def store_per_time_of_day_count(self,filePath: str, outputFileName : str):
-        raw_data = pd.read_csv(filePath)
+    def store_per_time_of_day_count(self,file_path: str, output_file_name : str):
+        raw_data = pd.read_csv(file_path)
         raw_data['HOUR'] = raw_data.apply(lambda x: self.__extract_hour__(x['ACCIDENT TIME']), axis=1).astype(int)
         raw_data['DAY TIME'] = 'N/A'
         
@@ -29,10 +29,10 @@ class TimeOfDayAnalyser():
         raw_data.loc[raw_data['HOUR'] > 22,  'DAY TIME'] = 'NIGHT (22-4)'
         grouped_by_day_time = raw_data.groupby('DAY TIME')['COLLISION_ID'].count()
         grouped_by_day_time = grouped_by_day_time.to_frame()
-        grouped_by_day_time['borough'] = filePath.split('\\')[-1].replace('.csv','')
+        grouped_by_day_time['borough'] = file_path.split('\\')[-1].replace('.csv','')
         grouped_by_day_time=grouped_by_day_time.sort_values(['COLLISION_ID'], ascending=False)
         storage_path = os.path.join(self.__folders__.findings_folder, self.__folders__.findings_by_time_of_day)
-        output_file_path = os.path.join(storage_path, outputFileName)
+        output_file_path = os.path.join(storage_path, output_file_name)
         os.makedirs(storage_path, exist_ok=True)     
         grouped_by_day_time.to_csv(output_file_path)
 

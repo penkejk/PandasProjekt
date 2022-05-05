@@ -5,12 +5,10 @@ from  folders_handling.folders import FoldersLookup
 
 class CasualityAnalyser():
 
-
-
     __folders__ = FoldersLookup()
 
-    def store_casuality_info_by_vehicle_type(self,filePath: str, outputFileName : str, injury :InjuryType ):
-        raw_data = pd.read_csv(filePath)
+    def store_casuality_info_by_vehicle_type(self,file_path: str, output_file_name : str, injury :InjuryType ):
+        raw_data = pd.read_csv(file_path)
         
         field_substring = 'KILLED'
         file_name = self.__folders__.findings_by_vehicle_type_kill
@@ -26,8 +24,8 @@ class CasualityAnalyser():
         mean_and_above_by_type=  raw_data_only_killed_mean_and_above.groupby('VEHICLE TYPE CODE 1')[f'{field_substring} PEOPLE'].sum()
         mean_and_above_by_type = mean_and_above_by_type.to_frame()
         mean_and_above_by_type=mean_and_above_by_type.sort_values([f'{field_substring} PEOPLE'], ascending=False)
-        mean_and_above_by_type['borough'] = filePath.split('\\')[-1].replace('.csv','')
+        mean_and_above_by_type['borough'] = file_path.split('\\')[-1].replace('.csv','')
         storage_path = os.path.join(self.__folders__.findings_folder, file_name)
-        output_file_path = os.path.join(storage_path, outputFileName)
+        output_file_path = os.path.join(storage_path, output_file_name)
         os.makedirs(storage_path, exist_ok=True)
         mean_and_above_by_type.to_csv(output_file_path)
